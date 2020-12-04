@@ -209,7 +209,7 @@ public class ChunkManager {
   }
 
   /*
-   * Query multiple chunks that contain data between scartTs and endTs, merge their results. Return
+   * Query multiple chunks that contain data between startTs and endTs, merge their results. Return
    * a single list of time series events.
    */
   public List<TimeSeries> query(Query query, long startTsSecs, long endTsSecs,
