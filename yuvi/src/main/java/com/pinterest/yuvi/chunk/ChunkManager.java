@@ -164,7 +164,7 @@ public class ChunkManager {
                                                      long endTsSecs,
                                                      QueryAggregation queryAggregation) {
 
-    // Select relavent chunks
+    // Select relevant chunks
     List<Chunk> chunksContainingData = chunkMap.values().stream()
         .filter(chunk -> chunk.containsDataInTimeRange(startTsSecs, endTsSecs))
         .collect(toList());

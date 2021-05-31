@@ -23,9 +23,9 @@ import java.util.concurrent.TimeUnit;
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.MILLISECONDS)
 @Fork(1)
 @State(Scope.Thread)
-public class HighCardinalityBenchmark {
+public class HighCardinalityBenchmark3 {
 
-    private static final Logger logger = LogManager.getLogger(HighCardinalityBenchmark.class);
+    private static final Logger logger = LogManager.getLogger(HighCardinalityBenchmark3.class);
 
     private long startMs = 1600000000;
 
@@ -35,15 +35,18 @@ public class HighCardinalityBenchmark {
     private long endMs = this.startMs + (this.totalPeriods * this.periodIntervalMs);
 
     // the cardinality of each tag
-    private int numHosts = 10;
-    private int numRegions = 10;
-    private int numEnvs = 3;
-    private int numShards = 70;
+//    private int numHosts = 10;
+//    private int numRegions = 10;
+//    private int numEnvs = 3;
+//    private int numShards = 70;
+
+    private DecimalFormat df = new DecimalFormat("#");
+    private int totalMetrics = 50_000;
 
     private ChunkManager chunkManager;
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
-                .include(HighCardinalityBenchmark.class.getSimpleName())
+                .include(HighCardinalityBenchmark3.class.getSimpleName())
                 .build();
         new Runner(opt).run();
     }
@@ -53,12 +56,15 @@ public class HighCardinalityBenchmark {
      */
     @Setup(Level.Trial)
     public void setupRequests() {
+
         logger.info("Setting up...");
-        logger.info(String.format("Total cardinality: %d", numHosts * numRegions * numEnvs * numShards));
+//        logger.info(String.format("Total cardinality: %d", numHosts * numRegions * numEnvs * numShards));
 
-        chunkManager = new ChunkManager("test", 10000000);
-
-        DecimalFormat df = new DecimalFormat("#");
+        for (int i = 0; i < totalMetrics; i++) {
+            String value = df.format(Math.random() * 100);  // set value to a random number between 0 and 100
+        }
+        chunkManager = new ChunkManager("test_high_res", 10_000_000);
+        chunkManager = new ChunkManager("test_dynamically_compressed_res", 10_000_000);
 
         // can generate high cardinality without generating so many entries. get a hashmap of previously used values...?
 
@@ -66,22 +72,18 @@ public class HighCardinalityBenchmark {
             long currentTime = System.currentTimeMillis();
             logger.info(String.format("Adding metrics at time %d...", ms));
 
-            for (int host = 0; host < this.numHosts; host++) {
-                for (int shard = 0; shard < this.numShards; shard++) {
-                    for (int env = 0; env < this.numEnvs; env++) {
-                        for (int region = 0; region < this.numRegions; region++) {
-                            String value = df.format(Math.random() * 100);  // set value to a random number between 0 and 100
-                            String metric = String.format("put jira.nginx.response.status.count %d %s host=host-%d region=region-%d env=env-%d, shard=shard-%d", ms, value, host, region, env, shard);
-                            chunkManager.addMetric(metric);
-                            // TODO-D : add more metrics (copy/paste)
-                        }
-                    }
-                }
+//            data generator for a simulated outage - base and compare these off data shapes in real outages or performance anomalies in atl
+
+            for (int i = 0; i < totalMetrics; i++) {
+
+//                String metric = String.format("put jira.nginx.response.status.count %d %s host=host-%d region=region-%d env=env-%d, shard=shard-%d, deployment=deployment-%d", ms, value, i, i+1, i+2, i+3, i+4);
+                // querying on the one metric
+                // the problem with sfx is that it's querying over 150,000 MTS in a single graph
+//                chunkManager.addMetric(metric);
             }
-//            while (System.currentTimeMillis() < currentTime + 1000) {
-//                // wait for 1 second
-//            }
         }
+
+//        create 2 chunk managers. only insert to the second one after 5 minutes, and insert the aggregated stuff
 
         logger.info("Finished setup");
     }
