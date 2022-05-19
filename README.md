@@ -1,5 +1,7 @@
 # Yuvi
 
+This repo is a fork of Yuvi TSDB demonstrating a novel dynamic time-based compression algorithm.
+
 Yuvi is an in-memory storage engine for recent time series metrics data. It has the following features:
 
 * Implemented in Java.
@@ -27,4 +29,4 @@ List<TimeSeries> ts = chunkManager.query(Query.parse("metricName.cpu.util host=*
 ```
 ## NOTE
 
-This project is under active development. A dev version of OpenTSDB integration code can be found at: https://github.com/mansu/opentsdb/tree/yuvi-dev
+This project is no longer under active development. A dev version of OpenTSDB integration code can be found at: https://github.com/mansu/opentsdb/tree/yuvi-dev
